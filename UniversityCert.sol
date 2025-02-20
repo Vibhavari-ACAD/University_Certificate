@@ -39,7 +39,7 @@ contract UniversityCert {
 
     function getLastCertID() public view returns (uint) {
         if (certificateCount == 0) {
-            return 0;  // ✅ Return 0 instead of reverting
+            return 0;  // 
         }
         return certificateCount - 1;
     }
