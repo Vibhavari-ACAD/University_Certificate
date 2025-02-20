@@ -59,11 +59,11 @@ export default function Home() {
         }
     
         try {
-            // ✅ Issue Certificate
+            // Issue Certificate
             const tx = await contract.issueCertificate(studentName, courseName, issueDate);
             await tx.wait();
     
-            // ✅ Check if this is the first certificate
+            // Check if this is the first certificate
             const count = await contract.certificateCount();
             let certID = 0;
             if (count.toString() !== "0") {
