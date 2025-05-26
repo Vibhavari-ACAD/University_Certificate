@@ -2,56 +2,52 @@
 pragma solidity ^0.8.0;
 
 contract UniversityCert {
-    // The university's address (only this address can issue or revoke certificates)
     address public university;
 
-    // A structure to hold certificate details
     struct Certificate {
         string studentName;
         string courseName;
         string issueDate;
-        bool valid; // Is the certificate valid or revoked?
+        bool valid;
     }
 
-    // A way to store certificates (each certificate is identified by a unique ID)
     mapping(uint => Certificate) public certificates;
+    uint public certificateCount;
 
-    // A counter to keep track of certificate IDs
-    uint public certificateCount=0;
+    event CertificateIssued(uint certID, string studentName);
 
-    // This constructor runs when the contract is first deployed
     constructor() {
-        university = msg.sender; // Set the deployer of the contract as the university
+        university = msg.sender;
     }
 
-    // Function to issue a certificate
-    function issueCertificate(string memory studentName, string memory courseName, string memory issueDate) 
-    public returns (uint) 
+    function issueCertificate(string memory studentName, string memory courseName, string memory issueDate)
+        public returns (uint)
     {
         require(msg.sender == university, "Only the university can issue certificates");
 
-        uint certID = certificateCount; // Store the current ID before incrementing
-        certificates[certID] = Certificate(studentName, courseName, issueDate, true);
-        certificateCount++; // Increment for the next certificate
+        certificates[certificateCount] = Certificate(studentName, courseName, issueDate, true);
+        emit CertificateIssued(certificateCount, studentName);
+        certificateCount++;
 
-        return certID; // Return the issued certificate ID
-    }
-
-    function getLastCertID() public view returns (uint) {
-        if (certificateCount == 0) {
-            return 0;  // ✅ Return 0 instead of reverting
-        }
         return certificateCount - 1;
     }
 
-
-    // Function to revoke a certificate
-    function revokeCertificate(uint certID) public {
-        require(msg.sender == university, "Only the university can revoke certificates");
-        certificates[certID].valid = false; // Mark the certificate as invalid
+    function getLastCertID() public view returns (uint) {
+        require(certificateCount > 0, "No certificates yet");
+        return certificateCount - 1;
+    }
+    
+    function getCertificateCount() public view returns (uint256) {
+    return certificateCount;
     }
 
-    // Function to verify if a certificate is valid
+
+    function revokeCertificate(uint certID) public {
+        require(msg.sender == university, "Only the university can revoke certificates");
+        require(certificates[certID].valid, "Already revoked");
+        certificates[certID].valid = false;
+    }
+
     function verifyCertificate(uint certID) public view returns (bool) {
         return certificates[certID].valid;
     }
